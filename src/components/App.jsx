@@ -5,6 +5,7 @@ import { getImages } from 'services/api';
 import { Searchbar } from './Searchbar/Searchbar';
 import { ImageGallery } from './ImageGallery/ImageGallery';
 import { Button } from './Button/Button';
+import { Loader } from './Loader/Loader';
 
 export class App extends Component {
   state = {
@@ -12,16 +13,27 @@ export class App extends Component {
     imagesList: [],
     nextPage: 2,
     error: null,
+    isLoading: false,
   };
 
   onSubmit = async searchValue => {
-    this.setState({
-      searchValue,
-      imagesList: await getImages(searchValue),
-    });
+    this.setState({ isLoading: true });
+
+    try {
+      this.setState({
+        searchValue,
+        imagesList: await getImages(searchValue),
+      });
+    } catch (error) {
+      this.setState({ error });
+    } finally {
+      this.setState({ isLoading: false });
+    }
   };
 
   loadMoreImages = async () => {
+    this.setState({ isLoading: true });
+
     try {
       const { nextPage, searchValue } = this.state;
       const extendedImagesList = await getImages(searchValue, nextPage);
@@ -34,20 +46,23 @@ export class App extends Component {
       });
     } catch (error) {
       this.setState({ error });
+    } finally {
+      this.setState({ isLoading: false });
     }
   };
 
   render() {
-    const { imagesList, searchValue, error } = this.state;
+    const { imagesList, searchValue, error, isLoading } = this.state;
 
     return (
       <>
         <GlobalStyle />
         <Box display="grid" gridTemplateColumns="1fr" gridGap="16px" pb="24px">
           <Searchbar onSubmit={this.onSubmit} />
+          {isLoading && <Loader />}
           <ImageGallery imagesList={imagesList} searchValue={searchValue} />
           {error && <p>Whoops, something went wrong: {error.message}</p>}
-          {imagesList.length && (
+          {!!imagesList.length && (
             <Box display="flex" justifyContent="center">
               <Button loadMoreImages={this.loadMoreImages} />
             </Box>
