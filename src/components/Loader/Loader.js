@@ -19,8 +19,6 @@ export const Loader = () => (
       radius="9"
       color="#61dafb"
       ariaLabel="three-dots-loading"
-      wrapperStyle
-      wrapperClass
     />
   </Box>
 );
