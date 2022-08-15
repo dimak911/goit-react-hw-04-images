@@ -1,9 +1,19 @@
 import PropTypes from 'prop-types';
 import { GalleryItem, ImageGalleryImage } from './ImageGalleryItem.styled';
 
-export const ImageGalleryItem = ({ id, smallImage, bigImage, searchValue }) => (
+export const ImageGalleryItem = ({
+  id,
+  smallImage,
+  searchValue,
+  openModal,
+}) => (
   <GalleryItem>
-    <ImageGalleryImage src={smallImage} alt={searchValue} data-img-id={id} />
+    <ImageGalleryImage
+      src={smallImage}
+      alt={searchValue}
+      data-img-id={id}
+      onClick={() => openModal(id)}
+    />
   </GalleryItem>
 );
 
@@ -12,4 +22,5 @@ ImageGalleryItem.propTypes = {
   smallImage: PropTypes.string.isRequired,
   bigImage: PropTypes.string.isRequired,
   searchValue: PropTypes.string.isRequired,
+  openModal: PropTypes.func.isRequired,
 };

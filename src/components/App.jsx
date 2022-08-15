@@ -6,6 +6,7 @@ import { Searchbar } from './Searchbar/Searchbar';
 import { ImageGallery } from './ImageGallery/ImageGallery';
 import { Button } from './Button/Button';
 import { Loader } from './Loader/Loader';
+import { Modal } from './Modal/Modal';
 
 export class App extends Component {
   state = {
@@ -14,6 +15,8 @@ export class App extends Component {
     nextPage: 2,
     error: null,
     isLoading: false,
+    isModalOpen: false,
+    modalImage: '',
   };
 
   onSubmit = async searchValue => {
@@ -51,8 +54,18 @@ export class App extends Component {
     }
   };
 
+  openModal = imgId => {
+    this.setState({
+      isModalOpen: true,
+      modalImage: this.state.imagesList.find(image => image.id === imgId)
+        .largeImageURL,
+    });
+    //
+  };
+
   render() {
-    const { imagesList, searchValue, error, isLoading } = this.state;
+    const { imagesList, searchValue, error, isLoading, isModalOpen } =
+      this.state;
 
     return (
       <>
@@ -60,7 +73,11 @@ export class App extends Component {
         <Box display="grid" gridTemplateColumns="1fr" gridGap="16px" pb="24px">
           <Searchbar onSubmit={this.onSubmit} />
           {isLoading && <Loader />}
-          <ImageGallery imagesList={imagesList} searchValue={searchValue} />
+          <ImageGallery
+            imagesList={imagesList}
+            searchValue={searchValue}
+            openModal={this.openModal}
+          />
           {error && <p>Whoops, something went wrong: {error.message}</p>}
           {!!imagesList.length && (
             <Box display="flex" justifyContent="center">
@@ -68,6 +85,7 @@ export class App extends Component {
             </Box>
           )}
         </Box>
+        {isModalOpen && <Modal />}
       </>
     );
   }

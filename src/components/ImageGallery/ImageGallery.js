@@ -2,7 +2,7 @@ import { ImageGalleryWrapper } from './ImageGallery.styled';
 import PropTypes from 'prop-types';
 import { ImageGalleryItem } from 'components/ImageGalleryItem/ImageGalleryItem';
 
-export const ImageGallery = ({ imagesList, searchValue }) => (
+export const ImageGallery = ({ imagesList, searchValue, openModal }) => (
   <ImageGalleryWrapper>
     {imagesList.map(({ id, webformatURL, largeImageURL }) => (
       <ImageGalleryItem
@@ -11,6 +11,7 @@ export const ImageGallery = ({ imagesList, searchValue }) => (
         smallImage={webformatURL}
         bigImage={largeImageURL}
         searchValue={searchValue}
+        openModal={openModal}
       />
     ))}
   </ImageGalleryWrapper>
@@ -25,4 +26,5 @@ ImageGallery.propTypes = {
     })
   ).isRequired,
   searchValue: PropTypes.string.isRequired,
+  openModal: PropTypes.func.isRequired,
 };
