@@ -60,12 +60,23 @@ export class App extends Component {
       modalImage: this.state.imagesList.find(image => image.id === imgId)
         .largeImageURL,
     });
-    //
+  };
+
+  closeModal = evt => {
+    if (evt.currentTarget === evt.target || evt.code === 'Escape') {
+      this.setState({ isModalOpen: false });
+    }
   };
 
   render() {
-    const { imagesList, searchValue, error, isLoading, isModalOpen } =
-      this.state;
+    const {
+      imagesList,
+      searchValue,
+      error,
+      isLoading,
+      isModalOpen,
+      modalImage,
+    } = this.state;
 
     return (
       <>
@@ -85,7 +96,13 @@ export class App extends Component {
             </Box>
           )}
         </Box>
-        {isModalOpen && <Modal />}
+        {isModalOpen && (
+          <Modal
+            modalImage={modalImage}
+            searchValue={searchValue}
+            closeModal={this.closeModal}
+          />
+        )}
       </>
     );
   }
