@@ -12,46 +12,50 @@ export class App extends Component {
   state = {
     searchValue: '',
     imagesList: [],
-    nextPage: 2,
+    page: 1,
     error: null,
     isLoading: false,
     isModalOpen: false,
     modalImage: '',
   };
 
-  onSubmit = async searchValue => {
-    this.setState({ isLoading: true });
-
+  async componentDidUpdate(prevProps, prevState) {
     try {
-      this.setState({
-        searchValue,
-        imagesList: await getImages(searchValue),
-      });
+      const { searchValue, page } = this.state;
+
+      if (prevState.searchValue !== searchValue) {
+        this.setState({
+          imagesList: await getImages(searchValue),
+        });
+        this.setState({ isLoading: false });
+      }
+
+      if (prevState.page !== page) {
+        const extendedImagesList = await getImages(searchValue, page);
+
+        this.setState(prevState => {
+          return {
+            imagesList: [...prevState.imagesList, ...extendedImagesList],
+          };
+        });
+        this.setState({ isLoading: false });
+      }
     } catch (error) {
       this.setState({ error });
-    } finally {
-      this.setState({ isLoading: false });
     }
+  }
+
+  onSubmit = searchValue => {
+    this.setState({ isLoading: true, searchValue });
   };
 
-  loadMoreImages = async () => {
-    this.setState({ isLoading: true });
-
-    try {
-      const { nextPage, searchValue } = this.state;
-      const extendedImagesList = await getImages(searchValue, nextPage);
-
-      this.setState(prevState => {
-        return {
-          nextPage: prevState.nextPage + 1,
-          imagesList: [...prevState.imagesList, ...extendedImagesList],
-        };
-      });
-    } catch (error) {
-      this.setState({ error });
-    } finally {
-      this.setState({ isLoading: false });
-    }
+  loadMoreImages = () => {
+    this.setState(prevState => {
+      return {
+        isLoading: true,
+        page: prevState.page + 1,
+      };
+    });
   };
 
   openModal = imgId => {
@@ -62,10 +66,8 @@ export class App extends Component {
     });
   };
 
-  closeModal = evt => {
-    if (evt.currentTarget === evt.target || evt.code === 'Escape') {
-      this.setState({ isModalOpen: false });
-    }
+  closeModal = () => {
+    this.setState({ isModalOpen: false });
   };
 
   render() {
@@ -84,24 +86,24 @@ export class App extends Component {
         <Box display="grid" gridTemplateColumns="1fr" gridGap="16px" pb="24px">
           <Searchbar onSubmit={this.onSubmit} />
           {isLoading && <Loader />}
-          <ImageGallery
-            imagesList={imagesList}
-            searchValue={searchValue}
-            openModal={this.openModal}
-          />
           {error && <p>Whoops, something went wrong: {error.message}</p>}
           {!!imagesList.length && (
-            <Box display="flex" justifyContent="center">
-              <Button loadMoreImages={this.loadMoreImages} />
-            </Box>
+            <>
+              <ImageGallery
+                imagesList={imagesList}
+                searchValue={searchValue}
+                openModal={this.openModal}
+              />
+              <Box display="flex" justifyContent="center">
+                <Button loadMoreImages={this.loadMoreImages} />
+              </Box>
+            </>
           )}
         </Box>
         {isModalOpen && (
-          <Modal
-            modalImage={modalImage}
-            searchValue={searchValue}
-            closeModal={this.closeModal}
-          />
+          <Modal closeModal={this.closeModal}>
+            <img src={modalImage} alt={searchValue} />
+          </Modal>
         )}
       </>
     );

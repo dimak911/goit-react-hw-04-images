@@ -12,7 +12,7 @@ export const Searchbar = ({ onSubmit }) => (
   <SearchBar>
     <Formik
       initialValues={{ search: '' }}
-      onSubmit={values => onSubmit(values.search)}
+      onSubmit={async values => await onSubmit(values.search)}
     >
       {({ isSubmitting }) => (
         <SearchForm>
